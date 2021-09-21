@@ -203,10 +203,10 @@ namespace Minesweeper
 
         public void Show(MainWindow window)
         {
-            if (Status == TileStatus.HIDDEN)
+            if (Status != TileStatus.SHOWN)
             {
                 Status = TileStatus.SHOWN;
-                if (IsBomb)
+                if (IsBomb && Status != TileStatus.FLAGGED)
                 {
                     Update();
                     window.Lose();
