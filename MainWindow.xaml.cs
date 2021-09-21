@@ -156,7 +156,7 @@ namespace Minesweeper
         public void Win()
         {
             Watch.Stop();
-            if (MessageBox.Show($"You Win!\rYour time was {Watch.Elapsed}\rPlay Again?", "Well Done!", MessageBoxButton.YesNo, MessageBoxImage.Asterisk) == MessageBoxResult.Yes)
+            if (MessageBox.Show($"You Win!\rYour time was {Watch.Elapsed}\rPlay Again?", "Well Done!", MessageBoxButton.YesNo, MessageBoxImage.Stop) == MessageBoxResult.Yes)
                 Startup();
             else
                 Environment.Exit(0);
@@ -165,7 +165,7 @@ namespace Minesweeper
         public void Lose()
         {
             Watch.Stop();
-            if (MessageBox.Show("You Lost! Play Again?", "BOOM!", MessageBoxButton.YesNo, MessageBoxImage.Asterisk) == MessageBoxResult.Yes)
+            if (MessageBox.Show("You Lost! Play Again?", "BOOM!", MessageBoxButton.YesNo, MessageBoxImage.Information) == MessageBoxResult.Yes)
                 Startup();
             else
                 Environment.Exit(0);
