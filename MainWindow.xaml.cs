@@ -126,7 +126,7 @@ namespace Minesweeper
                 Tiles[loc.X, loc.Y].Flag();
             } else if (e.ChangedButton == MouseButton.Left)
             {
-                Tiles[loc.X, loc.Y].Show(this);
+                Tiles[loc.X, loc.Y].Show(this, true);
             }
             e.Handled = true;
         }
@@ -150,6 +150,18 @@ namespace Minesweeper
             } else
             {
                 Watch.Start();
+            }
+        }
+
+        public void ShowAllBombs(Point exclude)
+        {
+            for (int y = 0; y < CurrentDifficulty.Size.Y; y++)
+            {
+                for (int x = 0; x < CurrentDifficulty.Size.X; x++)
+                {
+                    if (Tiles[x, y].IsBomb && (x, y) != exclude)
+                        Tiles[x, y].Show(this, false, false);
+                }
             }
         }
 
@@ -198,18 +210,19 @@ namespace Minesweeper
             Btn = btn;
             Location = loc;
             IsBomb = isBomb;
-            Update();
+            Update(false);
         }
 
-        public void Show(MainWindow window)
+        public void Show(MainWindow window, bool click, bool showOthers = true)
         {
             if (Status != TileStatus.SHOWN)
             {
                 Status = TileStatus.SHOWN;
                 if (IsBomb && Status != TileStatus.FLAGGED)
                 {
-                    Update();
-                    window.Lose();
+                    Update(click, window);
+                    if (click)
+                        window.Lose();
                 }
                 else
                 {
@@ -244,21 +257,21 @@ namespace Minesweeper
                     if (b && l && window.Tiles[Location.X - 1, Location.Y + 1].IsBomb)
                         Value++;
 
-                    if (Value == 0)
+                    if (Value == 0 && showOthers)
                     {
-                        if (l) window.Tiles[Location.X - 1, Location.Y].Show(window);
-                        if (t) window.Tiles[Location.X, Location.Y - 1].Show(window);
-                        if (r) window.Tiles[Location.X + 1, Location.Y].Show(window);
-                        if (b) window.Tiles[Location.X, Location.Y + 1].Show(window);
-                        if (l && t) window.Tiles[Location.X - 1, Location.Y - 1].Show(window);
-                        if (t && r) window.Tiles[Location.X + 1, Location.Y - 1].Show(window);
-                        if (r && b) window.Tiles[Location.X + 1, Location.Y + 1].Show(window);
-                        if (b && l) window.Tiles[Location.X - 1, Location.Y + 1].Show(window);
+                        if (l) window.Tiles[Location.X - 1, Location.Y].Show(window, false);
+                        if (t) window.Tiles[Location.X, Location.Y - 1].Show(window, false);
+                        if (r) window.Tiles[Location.X + 1, Location.Y].Show(window, false);
+                        if (b) window.Tiles[Location.X, Location.Y + 1].Show(window, false);
+                        if (l && t) window.Tiles[Location.X - 1, Location.Y - 1].Show(window, false);
+                        if (t && r) window.Tiles[Location.X + 1, Location.Y - 1].Show(window, false);
+                        if (r && b) window.Tiles[Location.X + 1, Location.Y + 1].Show(window, false);
+                        if (b && l) window.Tiles[Location.X - 1, Location.Y + 1].Show(window, false);
                     }
                 }
                 window.CheckGrid();
             }
-            Update();
+            Update(click);
         }
 
         public void Flag()
@@ -267,10 +280,10 @@ namespace Minesweeper
                 Status = TileStatus.FLAGGED;
             else if (Status == TileStatus.FLAGGED)
                 Status = TileStatus.HIDDEN;
-            Update();
+            Update(false);
         }
 
-        public void Update()
+        public void Update(bool click, MainWindow window = null)
         {
             Btn.Background = Brushes.LightGray;
             switch (Status)
@@ -289,7 +302,13 @@ namespace Minesweeper
                 default:
                     if (IsBomb)
                     {
-                        Btn.Background = Brushes.Red;
+                        if (click)
+                        {
+                            Btn.Background = Brushes.Red;
+                            if (window != null)
+                                window.ShowAllBombs(Location);
+                        }
+
                         Btn.Content = new Image
                         {
                             Source = new BitmapImage(new Uri("Resources\\Bomb.png", UriKind.Relative)),
@@ -331,7 +350,6 @@ namespace Minesweeper
                     }
                     break;
             }
-            //Btn.IsEnabled = Status != TileStatus.SHOWN;
         }
     }
 
