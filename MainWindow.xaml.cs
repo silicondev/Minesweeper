@@ -93,14 +93,12 @@ namespace Minesweeper
                         Tag = new Point(x, y)
                     };
 
-                    int chance = rng.Next(100) + 1;
-
                     btn.PreviewMouseDown += OnClick;
 
                     Grid.SetColumn(btn, x);
                     Grid.SetRow(btn, y);
 
-                    Tiles[x, y] = new Tile(btn, (x, y), chance <= CurrentDifficulty.Chance);
+                    Tiles[x, y] = new Tile(btn, (x, y), rng.Next(100) + 1 <= CurrentDifficulty.Chance);
 
                     MinesweeperGrid.ColumnDefinitions.Add(col);
                     MinesweeperGrid.Children.Add(btn);
@@ -139,7 +137,7 @@ namespace Minesweeper
             {
                 for (int x = 0; x < CurrentDifficulty.Size.X && complete; x++)
                 {
-                    if (Tiles[x, y].Status == TileStatus.HIDDEN && !Tiles[x, y].IsBomb)
+                    if (Tiles[x, y].Status != TileStatus.SHOWN && !Tiles[x, y].IsBomb)
                         complete = false;
                 }
             }
@@ -217,15 +215,16 @@ namespace Minesweeper
         {
             if (Status != TileStatus.SHOWN)
             {
-                Status = TileStatus.SHOWN;
                 if (IsBomb && Status != TileStatus.FLAGGED)
                 {
+                    Status = TileStatus.SHOWN;
                     Update(click, window);
                     if (click)
                         window.Lose();
                 }
-                else
+                else if ((click && Status != TileStatus.FLAGGED) || !click)
                 {
+                    Status = TileStatus.SHOWN;
                     Value = 0;
 
                     bool l = Location.X > 0;
