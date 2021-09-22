@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -14,9 +16,9 @@ namespace Minesweeper
     public partial class MainWindow : Window
     {
         public Difficulty CurrentDifficulty { get; set; }
-        public static Difficulty EASY = new Difficulty((10, 10), 5);
-        public static Difficulty MEDIUM = new Difficulty((20, 30), 10);
-        public static Difficulty HARD = new Difficulty((50, 70), 15);
+        public static Difficulty EASY = new Difficulty("Easy", (10, 10), 5);
+        public static Difficulty MEDIUM = new Difficulty("Medium", (20, 30), 10);
+        public static Difficulty HARD = new Difficulty("Hard", (50, 70), 15);
 
         public static int ButtonSize = 18;
 
@@ -27,7 +29,6 @@ namespace Minesweeper
         public MainWindow()
         {
             InitializeComponent();
-
             Startup();
         }
 
@@ -165,8 +166,83 @@ namespace Minesweeper
 
         public void Win()
         {
+            DateTime currentDate = DateTime.Now;
+            TimeSpan currentTime = Watch.Elapsed;
+            currentDate = DateTime.Parse($"{currentDate:dd/MM/yyyy hh:mm:ss}");
+
+            string str = $"You Win!\rYour time was {currentTime:hh\\:mm\\:ss\\.ff}\rPlay Again?\r";
+
+            var newLb = new List<string>();
+            int num = 1;
+            int addNum = -1;
+            if (File.Exists($"leaderboard{CurrentDifficulty.Name}.csv"))
+            {
+                string[] lb = File.ReadAllLines($"leaderboard{CurrentDifficulty.Name}.csv");
+                bool placed = false;
+                string currentStr = $"{currentDate:dd/MM/yyyy hh:mm:ss},{currentTime:hh\\,mm\\,ss\\,ff}";
+                foreach (var val in lb)
+                {
+                    string[] vals = val.Split(',');
+                    int hours = int.Parse(vals[2]);
+                    int minutes = int.Parse(vals[3]);
+                    int seconds = int.Parse(vals[4]);
+                    int miliseconds = int.Parse(vals[5]);
+
+                    TimeSpan span = new TimeSpan(0, hours, minutes, seconds, miliseconds);
+
+                    if (span > currentTime && !placed)
+                    {
+                        newLb.Add($"{num},{currentStr}");
+                        addNum = num;
+                        num++;
+                        placed = true;
+                    }
+
+                    newLb.Add($"{num},{vals[1]},{span:hh\\,mm\\,ss\\,ff}");
+                    num++;
+                }
+
+                if (!placed)
+                {
+                    newLb.Add($"{num},{currentStr}");
+                    addNum = num;
+                }
+
+                File.Delete($"leaderboard{CurrentDifficulty.Name}.csv");
+            } else
+            {
+                newLb.Add($"{num},{currentDate:dd/MM/yyyy hh:mm:ss},{currentTime:hh\\,mm\\,ss\\,ff}");
+                addNum = num;
+            }
+
+            using (File.Create($"leaderboard{CurrentDifficulty.Name}.csv")) { }
+            File.WriteAllLines($"leaderboard{CurrentDifficulty.Name}.csv", newLb.ToArray());
+
+            bool found = false;
+            foreach (var val in newLb.Count >= 10 ? newLb.GetRange(0, 10) : newLb)
+            {
+                string[] vals = val.Split(',');
+
+                str += "\r";
+
+                if (int.Parse(vals[0]) == addNum)
+                {
+                    str += "> ";
+                    found = true;
+                }
+
+                str += $"{vals[0]}: {vals[1]} - {vals[2]}:{vals[3]}:{vals[4]}.{vals[5]}";
+            }
+
+            if (!found)
+            {
+                string val = newLb.Find(x => x.StartsWith(addNum.ToString()));
+                string[] vals = val.Split(',');
+                str += $"\r> {vals[0]}: {vals[1]} - {vals[2]}:{vals[3]}:{vals[4]}.{vals[5]}";
+            }
+
             Watch.Stop();
-            if (MessageBox.Show($"You Win!\rYour time was {Watch.Elapsed}\rPlay Again?", "Well Done!", MessageBoxButton.YesNo, MessageBoxImage.Information) == MessageBoxResult.Yes)
+            if (MessageBox.Show(str, "Well Done!", MessageBoxButton.YesNo, MessageBoxImage.Information) == MessageBoxResult.Yes)
                 Startup();
             else
                 Environment.Exit(0);
@@ -184,13 +260,15 @@ namespace Minesweeper
 
     public class Difficulty
     {
+        public string Name { get; }
         public Point Size { get; }
         public int Chance { get; }
 
-        public Difficulty(Point size, int chance)
+        public Difficulty(string name, Point size, int chance)
         {
             Size = size;
             Chance = chance;
+            Name = name;
         }
     }
 
