@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Minesweeper"
         mc:Ignorable="d"
-        Title="Minesweeper" Height="50" Width="50" SizeToContent="WidthAndHeight">
+        Title="Minesweeper" Height="50" Width="50" SizeToContent="WidthAndHeight" ResizeMode="CanMinimize">
     <Grid x:Name="WindowGrid">
         <Grid x:Name="MinesweeperGrid" Height="Auto" Width="Auto" Margin="10,10,10,10"/>
     </Grid>

@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Minesweeper"
         mc:Ignorable="d"
-        Title="Menu" Height="210" Width="220">
+        Title="Menu" Height="210" Width="220" ResizeMode="CanMinimize">
     <Grid Margin="0,0,0,0">
         <RadioButton x:Name="rdbDifficultyEasy" Content="EASY" HorizontalAlignment="Left" Margin="78,61,0,0" VerticalAlignment="Top" GroupName="grpDifficulty" Width="46"/>
         <RadioButton x:Name="rdbDifficultyMedium" Content="MEDIUM" HorizontalAlignment="Left" Margin="78,81,0,0" VerticalAlignment="Top" IsChecked="True" GroupName="grpDifficulty"/>
