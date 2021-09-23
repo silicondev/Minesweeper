@@ -18,12 +18,10 @@ namespace Minesweeper
         public Difficulty CurrentDifficulty { get; set; }
         public static Difficulty EASY = new Difficulty("Easy", (10, 10), 5);
         public static Difficulty MEDIUM = new Difficulty("Medium", (20, 30), 10);
-        public static Difficulty HARD = new Difficulty("Hard", (50, 70), 15);
+        public static Difficulty HARD = new Difficulty("Hard", (50, 50), 15);
 
         public static int ButtonSize = 18;
-
         public Tile[,] Tiles;
-
         public Stopwatch Watch = new Stopwatch();
 
         public MainWindow()
